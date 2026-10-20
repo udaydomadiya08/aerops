@@ -1,0 +1,79 @@
+[
+  {
+    "id": "QC-2026-301",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-101",
+    "componentId": "CMP-TIT-01",
+    "inspectedQuantity": 16,
+    "rejectedQuantity": 0,
+    "inspectionDate": "2026-09-11",
+    "defectType": "none",
+    "disposition": "accepted"
+  },
+  {
+    "id": "QC-2026-302",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-103",
+    "componentId": "CMP-FST-02",
+    "inspectedQuantity": 100,
+    "rejectedQuantity": 4,
+    "inspectionDate": "2026-09-05",
+    "defectType": "dimensional",
+    "disposition": "rework"
+  },
+  {
+    "id": "QC-2026-303",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-105",
+    "componentId": "CMP-CMP-03",
+    "inspectedQuantity": 8,
+    "rejectedQuantity": 1,
+    "inspectionDate": "2026-09-09",
+    "defectType": "surface_finish",
+    "disposition": "scrap"
+  },
+  {
+    "id": "QC-2026-304",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-107",
+    "componentId": "CMP-AVN-04",
+    "inspectedQuantity": 12,
+    "rejectedQuantity": 0,
+    "inspectionDate": "2026-09-11",
+    "defectType": "none",
+    "disposition": "accepted"
+  },
+  {
+    "id": "QC-2026-305",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-109",
+    "componentId": "CMP-MCH-06",
+    "inspectedQuantity": 10,
+    "rejectedQuantity": 2,
+    "inspectionDate": "2026-09-03",
+    "defectType": "dimensional",
+    "disposition": "scrap"
+  },
+  {
+    "id": "QC-2026-306",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-111",
+    "componentId": "CMP-ALU-05",
+    "inspectedQuantity": 25,
+    "rejectedQuantity": 1,
+    "inspectionDate": "2026-09-15",
+    "defectType": "documentation",
+    "disposition": "concession"
+  },
+  {
+    "id": "QC-2026-307",
+    "referenceType": "purchase_order",
+    "referenceId": "PO-2026-112",
+    "componentId": "CMP-HYD-10",
+    "inspectedQuantity": 10,
+    "rejectedQuantity": 0,
+    "inspectionDate": "2026-09-16",
+    "defectType": "none",
+    "disposition": "accepted"
+  }
+]

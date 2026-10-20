@@ -1,0 +1,95 @@
+[
+  {
+    "id": "PRD-2026-088",
+    "assemblyCode": "ASY-WNG-88",
+    "assemblyName": "Fighter Jet Wing Spar Assembly",
+    "plannedQuantity": 4,
+    "completedQuantity": 2,
+    "plannedStartDate": "2026-10-05",
+    "requiredCompletionDate": "2026-10-28",
+    "billOfMaterials": [
+      { "componentId": "CMP-TIT-01", "quantityPerAssembly": 4 },
+      { "componentId": "CMP-ALU-05", "quantityPerAssembly": 6 },
+      { "componentId": "CMP-FST-02", "quantityPerAssembly": 20 }
+    ],
+    "status": "in_progress",
+    "priority": "critical_aog"
+  },
+  {
+    "id": "PRD-2026-089",
+    "assemblyCode": "ASY-FIN-12",
+    "assemblyName": "Composite Tail Fin Section",
+    "plannedQuantity": 6,
+    "completedQuantity": 0,
+    "plannedStartDate": "2026-10-18",
+    "requiredCompletionDate": "2026-11-15",
+    "billOfMaterials": [
+      { "componentId": "CMP-CMP-03", "quantityPerAssembly": 2 },
+      { "componentId": "CMP-FST-09", "quantityPerAssembly": 10 }
+    ],
+    "status": "scheduled",
+    "priority": "high"
+  },
+  {
+    "id": "PRD-2026-090",
+    "assemblyCode": "ASY-LGD-04",
+    "assemblyName": "Main Landing Gear Trunnion Assembly",
+    "plannedQuantity": 2,
+    "completedQuantity": 0,
+    "plannedStartDate": "2026-10-08",
+    "requiredCompletionDate": "2026-10-24",
+    "billOfMaterials": [
+      { "componentId": "CMP-TIT-01", "quantityPerAssembly": 2 },
+      { "componentId": "CMP-MCH-06", "quantityPerAssembly": 2 },
+      { "componentId": "CMP-HYD-10", "quantityPerAssembly": 2 }
+    ],
+    "status": "delayed",
+    "priority": "critical_aog"
+  },
+  {
+    "id": "PRD-2026-091",
+    "assemblyCode": "ASY-AVN-22",
+    "assemblyName": "Cockpit Avionics Rack Module",
+    "plannedQuantity": 4,
+    "completedQuantity": 3,
+    "plannedStartDate": "2026-09-25",
+    "requiredCompletionDate": "2026-10-18",
+    "billOfMaterials": [
+      { "componentId": "CMP-AVN-04", "quantityPerAssembly": 4 },
+      { "componentId": "CMP-FST-02", "quantityPerAssembly": 10 }
+    ],
+    "status": "in_progress",
+    "priority": "standard"
+  },
+  {
+    "id": "PRD-2026-092",
+    "assemblyCode": "ASY-RDM-09",
+    "assemblyName": "Radar Radome Fairing Assembly",
+    "plannedQuantity": 3,
+    "completedQuantity": 0,
+    "plannedStartDate": "2026-11-01",
+    "requiredCompletionDate": "2026-11-30",
+    "billOfMaterials": [
+      { "componentId": "CMP-CMP-07", "quantityPerAssembly": 1 },
+      { "componentId": "CMP-FST-09", "quantityPerAssembly": 5 }
+    ],
+    "status": "scheduled",
+    "priority": "standard"
+  },
+  {
+    "id": "PRD-2026-093",
+    "assemblyCode": "ASY-ENG-55",
+    "assemblyName": "Engine Bay Firewall & Mounting Bay",
+    "plannedQuantity": 2,
+    "completedQuantity": 1,
+    "plannedStartDate": "2026-10-01",
+    "requiredCompletionDate": "2026-10-20",
+    "billOfMaterials": [
+      { "componentId": "CMP-MCH-06", "quantityPerAssembly": 2 },
+      { "componentId": "CMP-PRP-08", "quantityPerAssembly": 2 },
+      { "componentId": "CMP-FST-02", "quantityPerAssembly": 15 }
+    ],
+    "status": "in_progress",
+    "priority": "high"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "BDG-2026-Q3-01",
+    "period": "2026-Q3",
+    "category": "Raw Materials & Special Alloys",
+    "budgetAmount": 450000.00,
+    "actualExpenditure": 468000.00
+  },
+  {
+    "id": "BDG-2026-Q3-02",
+    "period": "2026-Q3",
+    "category": "Precision Fasteners & Standard Hardware",
+    "budgetAmount": 120000.00,
+    "actualExpenditure": 114500.00
+  },
+  {
+    "id": "BDG-2026-Q3-03",
+    "period": "2026-Q3",
+    "category": "Carbon Fiber & Composite Assemblies",
+    "budgetAmount": 380000.00,
+    "actualExpenditure": 412000.00
+  },
+  {
+    "id": "BDG-2026-Q3-04",
+    "period": "2026-Q3",
+    "category": "Avionics & Harnessing Subsystems",
+    "budgetAmount": 290000.00,
+    "actualExpenditure": 284000.00
+  },
+  {
+    "id": "BDG-2026-Q3-05",
+    "period": "2026-Q3",
+    "category": "5-Axis CNC Titanium Machining Services",
+    "budgetAmount": 320000.00,
+    "actualExpenditure": 358000.00
+  },
+  {
+    "id": "BDG-2026-Q3-06",
+    "period": "2026-Q3",
+    "category": "Hydraulic & Actuation Subcontracts",
+    "budgetAmount": 210000.00,
+    "actualExpenditure": 198000.00
+  }
+]
