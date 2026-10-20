@@ -3,11 +3,14 @@
 > **Aerospace Manufacturing Operations Decision-Support System**  
 > *Independent Portfolio Demonstration Project — Prepared for Tata Advanced Systems Limited (TASL) Management Trainee Operations Focus*
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-aerops--eight.vercel.app-00C7B7?style=flat&logo=vercel&logoColor=white)](https://aerops-eight.vercel.app/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Mode-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19.3-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Tests](https://img.shields.io/badge/Vitest-47%20Passed-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+🚀 **Live Interactive Demo:** [https://aerops-eight.vercel.app/](https://aerops-eight.vercel.app/)
 
 ---
 
@@ -219,7 +222,9 @@ npm run preview
 
 ## 8. Deployment Configuration (Vercel & Static Hosts)
 
-The application is pre-configured for static hosting on **Vercel**, **Netlify**, or **GitHub Pages**.
+- **Production Live URL:** [https://aerops-eight.vercel.app/](https://aerops-eight.vercel.app/)
+- **Hosting Platform:** Vercel (Edge Network)
+- **Deployment Status:** Active & Verified
 
 ### Pre-Configured Files
 - [`vercel.json`](vercel.json): Configures single-page application (SPA) rewrites (`/(.*) -> /index.html`) and long-term immutable caching headers for static assets (`/assets/(.*)`).

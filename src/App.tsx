@@ -216,10 +216,15 @@ export function App() {
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
             <span>Independent Portfolio Demonstration</span>
             <span>&bull;</span>
-            <span className="flex items-center gap-1">
-              Synthetic Data Notice
+            <a
+              href="https://github.com/udaydomadiya08/aerops"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors inline-flex items-center gap-1"
+            >
+              GitHub Repository
               <ExternalLink className="h-3 w-3" />
-            </span>
+            </a>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 text-[10px] text-slate-500 text-center sm:text-left">
