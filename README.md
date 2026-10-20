@@ -50,9 +50,9 @@ The system is built on a modular, client-side, deterministic architecture design
 
 | Phase | Title | Scope & Status |
 | :--- | :--- | :--- |
-| **Phase 1** | **Foundation** | **CURRENT PHASE.** Architecture, data dictionary, domain models, business logic calculations, unit tests, synthetic fixtures, and foundational application shell. |
-| **Phase 2** | **Functional Application** | Executive dashboard, supplier performance table, shortage analyzer, production risk monitor, what-if simulator, and explainable action cards. |
-| **Phase 3** | **Verification & Polish** | Edge-case verification, responsive layouts, accessibility compliance, end-to-end user workflows, and UI polishing. |
+| **Phase 1** | **Foundation** | **COMPLETED.** Architecture, data dictionary, domain models, business logic calculations, unit tests, synthetic fixtures, and foundational application shell. |
+| **Phase 2** | **Functional Application** | **COMPLETED.** Executive dashboard with KPI trendlines, supplier performance scorecard, material shortage gross-to-net analyzer, production order feasibility monitor, interactive what-if simulator, and explainable action advisor. |
+| **Phase 3** | **Verification & Polish** | **NEXT PHASE.** Edge-case verification, responsive layouts, accessibility compliance, end-to-end user workflows, and UI polishing. |
 | **Phase 4** | **Documentation & Deployment** | Deployment configuration, repository publishing readiness, screenshots, and live demo verification. |
 
 ---

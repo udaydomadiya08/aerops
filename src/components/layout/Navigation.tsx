@@ -6,59 +6,74 @@ import {
   AlertTriangle,
   Factory,
   SlidersHorizontal,
-  Lock,
+  ShieldAlert,
 } from 'lucide-react'
 
 export type TabId =
-  | 'foundation'
   | 'dashboard'
   | 'suppliers'
   | 'shortages'
   | 'production'
   | 'simulation'
+  | 'recommendations'
+  | 'foundation'
 
 interface NavigationProps {
   activeTab: TabId
   onSelectTab: (tab: TabId) => void
+  actionCount?: number
+  shortageCount?: number
+  atRiskOrderCount?: number
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ activeTab, onSelectTab }) => {
+export const Navigation: React.FC<NavigationProps> = ({
+  activeTab,
+  onSelectTab,
+  actionCount,
+  shortageCount,
+  atRiskOrderCount,
+}) => {
   const tabs = [
-    {
-      id: 'foundation' as TabId,
-      label: 'Phase 1: Foundation & Data Architecture',
-      icon: <Layers className="h-4 w-4" />,
-      phase: 1,
-    },
     {
       id: 'dashboard' as TabId,
       label: 'Executive Dashboard',
       icon: <LayoutDashboard className="h-4 w-4" />,
-      phase: 2,
     },
     {
       id: 'suppliers' as TabId,
       label: 'Supplier Matrix',
       icon: <Users className="h-4 w-4" />,
-      phase: 2,
     },
     {
       id: 'shortages' as TabId,
       label: 'Material Shortages',
       icon: <AlertTriangle className="h-4 w-4" />,
-      phase: 2,
+      badge: shortageCount && shortageCount > 0 ? shortageCount : undefined,
+      badgeVariant: 'danger',
     },
     {
       id: 'production' as TabId,
       label: 'Production Feasibility',
       icon: <Factory className="h-4 w-4" />,
-      phase: 2,
+      badge: atRiskOrderCount && atRiskOrderCount > 0 ? atRiskOrderCount : undefined,
+      badgeVariant: 'warning',
     },
     {
       id: 'simulation' as TabId,
       label: 'What-If Simulator',
       icon: <SlidersHorizontal className="h-4 w-4" />,
-      phase: 2,
+    },
+    {
+      id: 'recommendations' as TabId,
+      label: 'Action Advisor',
+      icon: <ShieldAlert className="h-4 w-4" />,
+      badge: actionCount,
+      badgeVariant: 'info',
+    },
+    {
+      id: 'foundation' as TabId,
+      label: 'Architecture & Rules',
+      icon: <Layers className="h-4 w-4" />,
     },
   ]
 
@@ -68,7 +83,6 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onSelectTab }
         <div className="flex space-x-1 overflow-x-auto py-2 scrollbar-none">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id
-            const isPhase2 = tab.phase === 2
 
             return (
               <button
@@ -82,9 +96,17 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onSelectTab }
               >
                 {tab.icon}
                 <span>{tab.label}</span>
-                {isPhase2 && (
-                  <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                    <Lock className="h-2.5 w-2.5" /> Phase 2
+                {tab.badge !== undefined && (
+                  <span
+                    className={`ml-1 px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
+                      tab.badgeVariant === 'danger'
+                        ? 'bg-rose-950 text-rose-400 border border-rose-800'
+                        : tab.badgeVariant === 'warning'
+                        ? 'bg-amber-950 text-amber-400 border border-amber-800'
+                        : 'bg-blue-950 text-blue-400 border border-blue-800'
+                    }`}
+                  >
+                    {tab.badge}
                   </span>
                 )}
               </button>

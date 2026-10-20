@@ -12,7 +12,7 @@ export const Phase2PreviewView: React.FC<Phase2PreviewViewProps> = ({
   tabId,
   onGoToFoundation,
 }) => {
-  const content = {
+  const contentMap: Record<TabId, { title: string; subtitle: string; features: string[] }> = {
     dashboard: {
       title: 'Executive Operations Dashboard',
       subtitle: 'Fleet-wide operational health overview, trendlines, and risk alerts.',
@@ -67,12 +67,25 @@ export const Phase2PreviewView: React.FC<Phase2PreviewViewProps> = ({
         'Scenario reset and side-by-side comparison against baseline operations',
       ],
     },
+    recommendations: {
+      title: 'Explainable Operational Recommendations',
+      subtitle: 'Contextual decision-support proposals linked to root-cause data.',
+      features: [
+        'Prioritized action items (Critical, High, Medium)',
+        'Clear root cause and downstream operational impact descriptions',
+        'Concrete recommended next action for operations management',
+        'Estimated financial and lead-time exposure calculations',
+        'Human-in-the-loop acknowledgement controls',
+      ],
+    },
     foundation: {
       title: 'Foundation',
       subtitle: '',
       features: [],
     },
-  }[tabId]
+  }
+
+  const content = contentMap[tabId] || contentMap.dashboard
 
   return (
     <div className="rounded-xl bg-slate-900/60 border border-slate-800 p-8 max-w-4xl mx-auto my-8">

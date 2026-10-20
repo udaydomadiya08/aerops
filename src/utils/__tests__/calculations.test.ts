@@ -8,6 +8,12 @@ import {
   calculateBudgetVariance,
   assessSupplierRisk,
   calculateExecutiveKPIs,
+  simulateScenario,
+  generateOperationalRecommendations,
+  getOTDTrendData,
+  getDefectCategoryData,
+  getBudgetCategoryData,
+  addDaysToDate,
 } from '../calculations'
 
 import type {
@@ -94,7 +100,7 @@ describe('AeroOps Calculation Utilities', () => {
         },
       ]
       const result = calculateSupplierOTD(posWithCancelled, 'SUP-TEST', 'Test Supplier', '2026-10-15')
-      expect(result.eligibleDueOrders).toBe(2) // Still 2, cancelled ignored
+      expect(result.eligibleDueOrders).toBe(2)
     })
 
     it('calculates fleet-wide OTD correctly', () => {
@@ -163,7 +169,6 @@ describe('AeroOps Calculation Utilities', () => {
     ]
 
     it('identifies shortage when free stock + valid receipts are insufficient', () => {
-      // Free on-hand = 10, Gross requirement = 16. No receipts. Net shortage = 6.
       const result = calculateComponentShortage(mockComponent, [], mockProdOrders, '2026-10-15')
       expect(result.freeOnHand).toBe(10)
       expect(result.grossRequirement).toBe(16)
@@ -171,7 +176,7 @@ describe('AeroOps Calculation Utilities', () => {
       expect(result.netShortage).toBe(6)
       expect(result.isShortage).toBe(true)
       expect(result.shortageValueUSD).toBe(30000)
-      expect(result.isBelowSafetyStock).toBe(true) // free on hand (10) < safety stock (12)
+      expect(result.isBelowSafetyStock).toBe(true)
     })
 
     it('credits scheduled receipts arriving on or before the required date', () => {
@@ -188,7 +193,6 @@ describe('AeroOps Calculation Utilities', () => {
         expedited: false,
       }
 
-      // Free on-hand = 10, valid receipts = 10. Total supply = 20 >= 16. Shortage = 0.
       const result = calculateComponentShortage(mockComponent, [validPO], mockProdOrders, '2026-10-15')
       expect(result.validScheduledReceipts).toBe(10)
       expect(result.netShortage).toBe(0)
@@ -210,7 +214,7 @@ describe('AeroOps Calculation Utilities', () => {
       }
 
       const result = calculateComponentShortage(mockComponent, [latePO], mockProdOrders, '2026-10-15')
-      expect(result.validScheduledReceipts).toBe(0) // Must not be counted!
+      expect(result.validScheduledReceipts).toBe(0)
       expect(result.netShortage).toBe(6)
       expect(result.isShortage).toBe(true)
     })
@@ -321,9 +325,9 @@ describe('AeroOps Calculation Utilities', () => {
       ordersPlaced: 10,
       ordersDeliveredOnTime: 5,
       totalUnitsReceived: 1000,
-      rejectedUnits: 50, // 5% defect rate
+      rejectedUnits: 50,
       leadTimeDaysAvg: 55,
-      contractedLeadTimeDays: 35, // +20 days lead time slippage
+      contractedLeadTimeDays: 35,
       status: 'watch',
     }
 
@@ -336,7 +340,7 @@ describe('AeroOps Calculation Utilities', () => {
         receivedQuantity: 10,
         orderDate: '2026-08-01',
         expectedDeliveryDate: '2026-08-20',
-        actualDeliveryDate: '2026-09-01', // Late
+        actualDeliveryDate: '2026-09-01',
         status: 'delivered',
         expedited: false,
       },
@@ -347,6 +351,152 @@ describe('AeroOps Calculation Utilities', () => {
       expect(assessment.riskScore).toBeGreaterThanOrEqual(55)
       expect(assessment.riskLevel).toBe('critical')
       expect(assessment.riskFactors.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('What-If Scenario Simulation', () => {
+    it('shifts delivery dates and keeps baseline dataset immutable', () => {
+      const baseline = getBaselineDataSet()
+      const originalDate = baseline.purchaseOrders[0].expectedDeliveryDate
+
+      const simulated = simulateScenario(
+        baseline,
+        {
+          leadTimeDelayDays: 10,
+          scrapSurgePercentage: 0,
+          expediteDelayedPOs: false,
+          alternateSourcingBuffer: false,
+        },
+        SYSTEM_CUTOFF_DATE
+      )
+
+      // Baseline should NOT be mutated!
+      expect(baseline.purchaseOrders[0].expectedDeliveryDate).toBe(originalDate)
+
+      // Active / open POs in simulated dataset should be shifted
+      const openSimPO = simulated.purchaseOrders.find((p) => p.status === 'in_transit' || p.status === 'delayed')
+      if (openSimPO) {
+        const correspondingBase = baseline.purchaseOrders.find((p) => p.id === openSimPO.id)!
+        const expectedShifted = addDaysToDate(correspondingBase.expectedDeliveryDate, 10)
+        expect(openSimPO.expectedDeliveryDate).toBe(expectedShifted)
+      }
+    })
+
+    it('simulates scrap surge and reduces usable on-hand inventory', () => {
+      const baseline = getBaselineDataSet()
+      const originalStock = baseline.components[0].onHandQuantity
+
+      const simulated = simulateScenario(
+        baseline,
+        {
+          leadTimeDelayDays: 0,
+          scrapSurgePercentage: 10,
+          expediteDelayedPOs: false,
+          alternateSourcingBuffer: false,
+        },
+        SYSTEM_CUTOFF_DATE
+      )
+
+      expect(simulated.components[0].onHandQuantity).toBeLessThan(originalStock)
+      expect(baseline.components[0].onHandQuantity).toBe(originalStock)
+    })
+
+    it('simulates air freight expedite on delayed purchase orders', () => {
+      const baseline = getBaselineDataSet()
+      const delayedPO = baseline.purchaseOrders.find((p) => p.status === 'delayed')
+      expect(delayedPO).toBeDefined()
+
+      const simulated = simulateScenario(
+        baseline,
+        {
+          leadTimeDelayDays: 0,
+          scrapSurgePercentage: 0,
+          expediteDelayedPOs: true,
+          alternateSourcingBuffer: false,
+        },
+        SYSTEM_CUTOFF_DATE
+      )
+
+      const expeditedSimPO = simulated.purchaseOrders.find((p) => p.id === delayedPO!.id)!
+      expect(expeditedSimPO.status).toBe('delivered')
+      expect(expeditedSimPO.expedited).toBe(true)
+      expect(expeditedSimPO.actualDeliveryDate).toBe(SYSTEM_CUTOFF_DATE)
+    })
+
+    it('injects dual-sourcing safety buffer for components with secondary vendors', () => {
+      const baseline = getBaselineDataSet()
+      const dualSourcedComp = baseline.components.find((c) => c.secondarySupplierIds.length > 0)!
+
+      const simulated = simulateScenario(
+        baseline,
+        {
+          leadTimeDelayDays: 0,
+          scrapSurgePercentage: 0,
+          expediteDelayedPOs: false,
+          alternateSourcingBuffer: true,
+        },
+        SYSTEM_CUTOFF_DATE
+      )
+
+      const simComp = simulated.components.find((c) => c.id === dualSourcedComp.id)!
+      expect(simComp.onHandQuantity).toBeGreaterThan(dualSourcedComp.onHandQuantity)
+    })
+  })
+
+  describe('Operational Recommendation Generation', () => {
+    it('generates prioritized, explainable recommendations from domain bottlenecks', () => {
+      const baseline = getBaselineDataSet()
+      const shortages = baseline.components.map((c) =>
+        calculateComponentShortage(c, baseline.purchaseOrders, baseline.productionOrders, SYSTEM_CUTOFF_DATE)
+      )
+      const shortagesMap = new Map(shortages.map((s) => [s.componentId, s]))
+      const atRiskOrders = baseline.productionOrders.map((o) =>
+        assessProductionOrderRisk(o, shortagesMap, SYSTEM_CUTOFF_DATE)
+      )
+      const supplierAssessments = baseline.suppliers.map((s) =>
+        assessSupplierRisk(s, baseline.purchaseOrders, SYSTEM_CUTOFF_DATE)
+      )
+      const budgetVariances = baseline.budgetRecords.map((b) => calculateBudgetVariance(b))
+
+      const recs = generateOperationalRecommendations(
+        baseline,
+        shortages,
+        atRiskOrders,
+        supplierAssessments,
+        budgetVariances
+      )
+
+      expect(recs.length).toBeGreaterThan(0)
+      const criticalRec = recs.find((r) => r.priority === 'critical')
+      expect(criticalRec).toBeDefined()
+      expect(criticalRec?.rootCause).toBeTruthy()
+      expect(criticalRec?.suggestedAction).toBeTruthy()
+      expect(criticalRec?.actionable).toBe(true)
+    })
+  })
+
+  describe('Chart Aggregation Utilities', () => {
+    it('produces valid OTD trend points', () => {
+      const baseline = getBaselineDataSet()
+      const trend = getOTDTrendData(baseline.purchaseOrders, SYSTEM_CUTOFF_DATE)
+      expect(trend.length).toBe(6)
+      expect(trend[5].otdPercentage).toBeGreaterThan(0)
+      expect(trend[0].target).toBe(90.0)
+    })
+
+    it('aggregates defect categories accurately', () => {
+      const baseline = getBaselineDataSet()
+      const defectPoints = getDefectCategoryData(baseline.qualityRecords)
+      expect(defectPoints.length).toBeGreaterThan(0)
+      const dimensional = defectPoints.find((d) => d.defectType === 'DIMENSIONAL')
+      expect(dimensional).toBeDefined()
+    })
+
+    it('formats budget categories for visualization', () => {
+      const baseline = getBaselineDataSet()
+      const budgetPoints = getBudgetCategoryData(baseline.budgetRecords)
+      expect(budgetPoints.length).toBe(baseline.budgetRecords.length)
+      expect(budgetPoints[0].budget).toBeGreaterThan(0)
     })
   })
 

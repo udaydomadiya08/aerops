@@ -1,15 +1,16 @@
 import React from 'react'
-import { Plane, ShieldCheck, Calendar, Activity } from 'lucide-react'
+import { Plane, ShieldCheck, Calendar, RefreshCw } from 'lucide-react'
 import { Badge } from '../common/Badge'
 
 interface HeaderProps {
   cutoffDate: string
+  onResetData?: () => void
 }
 
-export const Header: React.FC<HeaderProps> = ({ cutoffDate }) => {
+export const Header: React.FC<HeaderProps> = ({ cutoffDate, onResetData }) => {
   return (
     <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           
           {/* Logo & Operational Branding */}
@@ -23,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ cutoffDate }) => {
                   AeroOps Control Tower
                 </h1>
                 <Badge variant="info" size="sm">
-                  v1.0-Phase1
+                  Phase 2 Functional
                 </Badge>
               </div>
               <p className="text-xs text-slate-400">
@@ -32,8 +33,8 @@ export const Header: React.FC<HeaderProps> = ({ cutoffDate }) => {
             </div>
           </div>
 
-          {/* Operational Status & Active Period Context */}
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Operational Status & Controls */}
+          <div className="flex flex-wrap items-center gap-2.5">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-xs text-slate-300">
               <Calendar className="h-3.5 w-3.5 text-blue-400" />
               <span className="text-slate-400">Cut-off Date:</span>
@@ -42,13 +43,19 @@ export const Header: React.FC<HeaderProps> = ({ cutoffDate }) => {
 
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-xs text-emerald-400">
               <ShieldCheck className="h-3.5 w-3.5" />
-              <span className="font-medium">Phase 1 Foundation Verified</span>
+              <span className="font-medium">Operational Decision Engine Active</span>
             </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-xs text-slate-400">
-              <Activity className="h-3.5 w-3.5 text-slate-400" />
-              <span>Strict Types &bull; 17 Vitest Passed</span>
-            </div>
+            {onResetData && (
+              <button
+                onClick={onResetData}
+                title="Reset all filters, simulation parameters, and data state to baseline"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium transition-colors"
+              >
+                <RefreshCw className="h-3 w-3 text-slate-400" />
+                <span>Reset View</span>
+              </button>
+            )}
           </div>
 
         </div>

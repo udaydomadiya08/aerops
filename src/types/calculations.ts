@@ -2,7 +2,8 @@
  * AeroOps Control Tower — Calculation Types
  * 
  * Data structures for operational metrics, risk assessments,
- * shortage calculations, and executive KPIs.
+ * shortage calculations, executive KPIs, scenario simulations,
+ * and explainable operational recommendations.
  */
 
 export interface SupplierOTDResult {
@@ -71,12 +72,15 @@ export interface SupplierRiskAssessment {
   supplierId: string
   supplierName: string
   tier: string
+  category: string
   otdPercentage: number
   defectPercentage: number
   leadTimeVarianceDays: number
   riskScore: number // 0 (best) to 100 (worst)
   riskLevel: 'low' | 'watch' | 'critical'
   riskFactors: string[]
+  leadTimeDaysAvg: number
+  contractedLeadTimeDays: number
 }
 
 export interface ExecutiveKPIs {
@@ -90,4 +94,25 @@ export interface ExecutiveKPIs {
   totalInspectedUnits: number
   netBudgetVarianceUSD: number
   netBudgetVariancePercentage: number
+}
+
+export interface ScenarioParameters {
+  leadTimeDelayDays: number // e.g. 0 to 20 days
+  scrapSurgePercentage: number // e.g. 0% to 10%
+  expediteDelayedPOs: boolean // rush delivery toggle
+  alternateSourcingBuffer: boolean // dual sourcing relief
+}
+
+export interface OperationalRecommendation {
+  id: string
+  title: string
+  category: 'procurement' | 'production' | 'quality' | 'inventory'
+  priority: 'critical' | 'high' | 'medium'
+  rootCause: string
+  potentialImpact: string
+  suggestedAction: string
+  relatedEntityId?: string
+  relatedEntityName?: string
+  estimatedCostImpactUSD?: number
+  actionable: boolean
 }
