@@ -75,6 +75,7 @@ export type ProductionOrderStatus =
   | 'delayed'
   | 'completed'
   | 'on_hold'
+  | 'cancelled'
 
 export type ProductionOrderPriority = 'standard' | 'high' | 'critical_aog'
 

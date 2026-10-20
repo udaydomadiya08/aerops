@@ -37,6 +37,7 @@ export interface ComponentShortageResult {
   unitCostUSD: number
   shortageValueUSD: number
   impactedProductionOrderIds: string[]
+  earliestNeedDate?: string
 }
 
 export type RiskSeverity = 'healthy' | 'moderate' | 'critical'

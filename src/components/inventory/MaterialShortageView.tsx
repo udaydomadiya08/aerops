@@ -8,6 +8,7 @@ import {
   Layers,
   Info,
   Calendar,
+  RotateCcw,
 } from 'lucide-react'
 
 import { Badge } from '../common/Badge'
@@ -66,6 +67,12 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
     })
   }, [shortages, components, searchTerm, categoryFilter, shortageFilter])
 
+  const handleResetFilters = () => {
+    setSearchTerm('')
+    setCategoryFilter('all')
+    setShortageFilter('all')
+  }
+
   return (
     <div className="space-y-6">
       
@@ -87,8 +94,11 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-300">
-            <Calendar className="h-3.5 w-3.5 text-blue-400" />
+          <div
+            aria-label={`Current operational reporting cut-off date is ${cutoffDate}`}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-800 text-xs text-slate-300"
+          >
+            <Calendar className="h-3.5 w-3.5 text-blue-400" aria-hidden="true" />
             <span>Cut-off Date: <strong className="font-mono text-white">{cutoffDate}</strong></span>
           </div>
         </div>
@@ -97,25 +107,27 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
             <input
               type="text"
+              aria-label="Search components by ID or description"
               placeholder="Search component ID, titanium, bolts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           {/* Category Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
-              <Filter className="h-3 w-3" /> Category:
-            </span>
+            <label htmlFor="material-cat-filter" className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
+              <Filter className="h-3 w-3" aria-hidden="true" /> Category:
+            </label>
             <select
+              id="material-cat-filter"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Commodity Groups</option>
               <option value="Structural">Structural & Forgings</option>
@@ -128,11 +140,12 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
 
           {/* Shortage Status Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0">Inventory State:</span>
+            <label htmlFor="material-state-filter" className="text-xs text-slate-400 shrink-0">Inventory State:</label>
             <select
+              id="material-state-filter"
               value={shortageFilter}
               onChange={(e) => setShortageFilter(e.target.value as any)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Parts ({shortages.length})</option>
               <option value="shortage_only">Critical Shortages Only ({activeShortages.length})</option>
@@ -194,7 +207,7 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
 
       {/* 3. Shortage Mathematical Rule Notice */}
       <div className="rounded-lg bg-blue-950/20 border border-blue-900/40 p-4 text-xs text-slate-300 flex items-start gap-3">
-        <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
+        <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" aria-hidden="true" />
         <div className="space-y-1">
           <span className="font-semibold text-white">Aerospace Scheduled Receipt Rule Applied:</span>
           <p className="text-slate-400 text-[11px] leading-relaxed">
@@ -207,25 +220,35 @@ export const MaterialShortageView: React.FC<MaterialShortageViewProps> = ({
       {/* 4. Detailed Component Shortage Table */}
       <div className="rounded-xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs" aria-label="Component Shortage & Inventory Table">
             <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-medium uppercase tracking-wider text-[11px]">
               <tr>
-                <th className="px-5 py-3">Part Details</th>
-                <th className="px-5 py-3">Physical On-Hand</th>
-                <th className="px-5 py-3">Allocated to WIP</th>
-                <th className="px-5 py-3">Net Free Stock</th>
-                <th className="px-5 py-3">Gross BOM Req</th>
-                <th className="px-5 py-3">Valid Scheduled POs</th>
-                <th className="px-5 py-3">Net Shortage</th>
-                <th className="px-5 py-3">Financial Deficit</th>
-                <th className="px-5 py-3">Impacted Orders</th>
+                <th scope="col" className="px-5 py-3">Part Details</th>
+                <th scope="col" className="px-5 py-3">Physical On-Hand</th>
+                <th scope="col" className="px-5 py-3">Allocated to WIP</th>
+                <th scope="col" className="px-5 py-3">Net Free Stock</th>
+                <th scope="col" className="px-5 py-3">Gross BOM Req</th>
+                <th scope="col" className="px-5 py-3">Valid Scheduled POs</th>
+                <th scope="col" className="px-5 py-3">Net Shortage</th>
+                <th scope="col" className="px-5 py-3">Financial Deficit</th>
+                <th scope="col" className="px-5 py-3">Impacted Orders</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/80">
               {filteredShortages.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-5 py-8 text-center text-slate-500">
-                    No components match the selected filter criteria.
+                  <td colSpan={9} className="px-5 py-10 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+                      <p className="text-xs">No components match the selected filter criteria.</p>
+                      <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-medium border border-blue-500/30 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                      >
+                        <RotateCcw className="h-3 w-3" aria-hidden="true" />
+                        <span>Clear Filter Criteria</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (

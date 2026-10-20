@@ -4,6 +4,7 @@ import {
   Filter,
   ClipboardCheck,
   Check,
+  RotateCcw,
 } from 'lucide-react'
 
 import { Badge } from '../common/Badge'
@@ -37,6 +38,11 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
     return matchesCategory && matchesPriority
   })
 
+  const handleResetFilters = () => {
+    setCategoryFilter('all')
+    setPriorityFilter('all')
+  }
+
   return (
     <div className="space-y-6">
       
@@ -61,7 +67,7 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-300 px-3 py-1.5 rounded-lg bg-slate-950/80 border border-slate-800">
-            <ClipboardCheck className="h-3.5 w-3.5 text-emerald-400" />
+            <ClipboardCheck className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
             <span>Acknowledged: <strong>{acknowledgedIds.size} / {recommendations.length}</strong></span>
           </div>
         </div>
@@ -69,13 +75,14 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
         {/* Filter Bar */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
-              <Filter className="h-3 w-3" /> Commodity Domain:
-            </span>
+            <label htmlFor="action-domain-filter" className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
+              <Filter className="h-3 w-3" aria-hidden="true" /> Commodity Domain:
+            </label>
             <select
+              id="action-domain-filter"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Domains (Inventory, Procurement, Production)</option>
               <option value="inventory">Inventory & Shortages</option>
@@ -85,11 +92,12 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0">Priority Severity:</span>
+            <label htmlFor="action-priority-filter" className="text-xs text-slate-400 shrink-0">Priority Severity:</label>
             <select
+              id="action-priority-filter"
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Priorities</option>
               <option value="critical">Critical (Line-Stop Exposure)</option>
@@ -103,8 +111,18 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
       {/* 2. Recommendations List */}
       <div className="space-y-4">
         {filteredRecs.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 bg-slate-900/50 rounded-xl border border-slate-800">
-            No operational recommendations match the selected filters.
+          <div className="p-10 text-center text-slate-400 bg-slate-900/50 rounded-xl border border-slate-800">
+            <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+              <p className="text-xs">No operational recommendations match the selected filters.</p>
+              <button
+                type="button"
+                onClick={handleResetFilters}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-medium border border-blue-500/30 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+              >
+                <RotateCcw className="h-3 w-3" aria-hidden="true" />
+                <span>Clear Filter Criteria</span>
+              </button>
+            </div>
           </div>
         ) : (
           filteredRecs.map((rec) => {
@@ -142,14 +160,17 @@ export const ExplainableActionsView: React.FC<ExplainableActionsViewProps> = ({
                   </div>
 
                   <button
+                    type="button"
+                    aria-pressed={isAck}
+                    aria-label={`Mark recommendation ${rec.id} as ${isAck ? 'pending review' : 'acknowledged'}`}
                     onClick={() => toggleAcknowledge(rec.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                       isAck
                         ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800'
                         : 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
                     }`}
                   >
-                    {isAck ? <Check className="h-3.5 w-3.5" /> : null}
+                    {isAck ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : null}
                     <span>{isAck ? 'Action In Review' : 'Acknowledge Action'}</span>
                   </button>
                 </div>

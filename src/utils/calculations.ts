@@ -181,7 +181,7 @@ export function calculateComponentShortage(
 
   // Find active production orders requiring this component
   const relevantProductionOrders = productionOrders.filter((order) => {
-    if (order.status === 'completed' || order.status === 'on_hold') return false
+    if (order.status === 'completed' || order.status === 'on_hold' || order.status === 'cancelled') return false
     return order.billOfMaterials.some((bom) => bom.componentId === component.id)
   })
 
@@ -197,9 +197,8 @@ export function calculateComponentShortage(
   }
 
   // Need threshold: earliest production start date, or cutoff date
-  const requirementTargetDate = earliestNeedDates.length > 0
-    ? earliestNeedDates.sort()[0]
-    : cutoffDate
+  const earliestNeedDate = earliestNeedDates.length > 0 ? earliestNeedDates.sort()[0] : undefined
+  const requirementTargetDate = earliestNeedDate || cutoffDate
 
   // Valid scheduled receipts must arrive ON OR BEFORE the target need date
   const componentPOs = pos.filter((po) => po.componentId === component.id)
@@ -231,6 +230,7 @@ export function calculateComponentShortage(
     unitCostUSD: component.unitCostUSD,
     shortageValueUSD,
     impactedProductionOrderIds: relevantProductionOrders.map((o) => o.id),
+    earliestNeedDate,
   }
 }
 
@@ -280,7 +280,8 @@ export function assessProductionOrderRisk(
     if (
       order.priority === 'critical_aog' ||
       shortageComponentIds.length > 0 ||
-      order.status === 'delayed'
+      order.status === 'delayed' ||
+      (cutoffDate > order.requiredCompletionDate && order.completedQuantity < order.plannedQuantity)
     ) {
       severity = 'critical'
     } else {

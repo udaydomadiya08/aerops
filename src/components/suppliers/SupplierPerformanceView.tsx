@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Users,
   Search,
@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   X,
   FileQuestion,
+  RotateCcw,
 } from 'lucide-react'
 
 import { Badge } from '../common/Badge'
@@ -37,6 +38,18 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
   const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null)
   const [showFormulaModal, setShowFormulaModal] = useState(false)
+
+  // Keyboard accessibility: Close modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedSupplierId(null)
+        setShowFormulaModal(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Combined supplier record with computed assessment
   const combinedSuppliers = useMemo(() => {
@@ -114,6 +127,12 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
     }
   }
 
+  const handleResetFilters = () => {
+    setSearchTerm('')
+    setTierFilter('all')
+    setRiskFilter('all')
+  }
+
   const selectedSupplier = combinedSuppliers.find((s) => s.id === selectedSupplierId)
   const selectedSupplierPOs = purchaseOrders.filter((po) => po.supplierId === selectedSupplierId)
 
@@ -139,10 +158,12 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
           </div>
 
           <button
+            type="button"
             onClick={() => setShowFormulaModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium transition-colors shrink-0"
+            aria-label="View mathematical formula and weightings breakdown for supplier risk score"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
           >
-            <Info className="h-3.5 w-3.5 text-blue-400" />
+            <Info className="h-3.5 w-3.5 text-blue-400" aria-hidden="true" />
             <span>Formula & Weightings Breakdown</span>
           </button>
         </div>
@@ -151,25 +172,27 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" aria-hidden="true" />
             <input
               type="text"
+              aria-label="Search suppliers by name, commodity, or location"
               placeholder="Search vendor name, commodity, city..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           {/* Tier Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
-              <Filter className="h-3 w-3" /> Tier:
-            </span>
+            <label htmlFor="tier-filter" className="text-xs text-slate-400 shrink-0 flex items-center gap-1">
+              <Filter className="h-3 w-3" aria-hidden="true" /> Tier:
+            </label>
             <select
+              id="tier-filter"
               value={tierFilter}
               onChange={(e) => setTierFilter(e.target.value as any)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Tiers (Tier 1 & Tier 2)</option>
               <option value="Tier 1">Tier 1 Strategic Suppliers</option>
@@ -179,11 +202,12 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
 
           {/* Risk Filter */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-400 shrink-0">Risk Level:</span>
+            <label htmlFor="risk-filter" className="text-xs text-slate-400 shrink-0">Risk Level:</label>
             <select
+              id="risk-filter"
               value={riskFilter}
               onChange={(e) => setRiskFilter(e.target.value as any)}
-              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-200 px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
               <option value="all">All Risk Levels</option>
               <option value="low">Low Risk (Compliant)</option>
@@ -197,71 +221,93 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
       {/* 2. Main Supplier Table */}
       <div className="rounded-xl bg-slate-900/90 border border-slate-800 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs" aria-label="Supplier Performance Table">
             <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-medium uppercase tracking-wider text-[11px]">
               <tr>
-                <th
-                  onClick={() => handleSort('name')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('name')}
+                    aria-label={`Sort by Supplier Company, currently sorted ${sortField === 'name' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>Supplier Company</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('tier')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('tier')}
+                    aria-label={`Sort by Tier, currently sorted ${sortField === 'tier' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>Tier</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('otd')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('otd')}
+                    aria-label={`Sort by On-Time Delivery, currently sorted ${sortField === 'otd' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>On-Time Delivery</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('defect')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('defect')}
+                    aria-label={`Sort by Defect Rate, currently sorted ${sortField === 'defect' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>Defect Rate</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('leadTime')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('leadTime')}
+                    aria-label={`Sort by Lead Time, currently sorted ${sortField === 'leadTime' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>Lead Time (Avg vs SLA)</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th
-                  onClick={() => handleSort('riskScore')}
-                  className="px-5 py-3 cursor-pointer hover:text-white transition-colors"
-                >
-                  <div className="flex items-center gap-1.5">
+                <th scope="col" className="px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => handleSort('riskScore')}
+                    aria-label={`Sort by Composite Risk, currently sorted ${sortField === 'riskScore' ? sortOrder : 'none'}`}
+                    className="flex items-center gap-1.5 hover:text-white transition-colors focus-visible:outline-none focus-visible:text-blue-400"
+                  >
                     <span>Composite Risk</span>
-                    <ArrowUpDown className="h-3 w-3" />
-                  </div>
+                    <ArrowUpDown className="h-3 w-3" aria-hidden="true" />
+                  </button>
                 </th>
-                <th className="px-5 py-3 text-right">Details</th>
+                <th scope="col" className="px-5 py-3 text-right">Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/80">
               {sortedSuppliers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-8 text-center text-slate-500">
-                    No suppliers match the selected filter criteria.
+                  <td colSpan={7} className="px-5 py-10 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2 max-w-sm mx-auto">
+                      <p className="text-xs">No suppliers match the current filter or search criteria.</p>
+                      <button
+                        type="button"
+                        onClick={handleResetFilters}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-medium border border-blue-500/30 transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
+                      >
+                        <RotateCcw className="h-3 w-3" aria-hidden="true" />
+                        <span>Clear Filter Criteria</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -354,8 +400,10 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <button
+                          type="button"
                           onClick={() => setSelectedSupplierId(sup.id)}
-                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition-colors"
+                          aria-label={`Inspect purchase orders and risk factors for ${sup.name}`}
+                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                         >
                           Inspect
                         </button>
@@ -371,12 +419,19 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
 
       {/* 3. Supplier PO Inspection Modal / Drawer */}
       {selectedSupplier && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="supplier-drawer-title"
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 shadow-xl">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-white">{selectedSupplier.name}</h3>
+                  <h3 id="supplier-drawer-title" className="text-lg font-bold text-white">
+                    {selectedSupplier.name}
+                  </h3>
                   <Badge variant="neutral" size="sm">{selectedSupplier.tier}</Badge>
                   <Badge
                     variant={
@@ -396,10 +451,12 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedSupplierId(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                aria-label="Close supplier details drawer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -408,13 +465,13 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
               <span className="font-semibold text-slate-300">Operational Risk Diagnostics:</span>
               {selectedSupplier.assessment.riskFactors.length === 0 ? (
                 <div className="text-emerald-400 text-[11px] flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
                   <span>Vendor compliant with all delivery SLAs and AS9100 quality standards.</span>
                 </div>
               ) : (
                 selectedSupplier.assessment.riskFactors.map((f, i) => (
                   <div key={i} className="text-amber-400 text-[11px] flex items-center gap-1.5">
-                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <span>{f}</span>
                   </div>
                 ))
@@ -427,14 +484,14 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
                 Active & Recent Purchase Orders ({selectedSupplierPOs.length})
               </h4>
               <div className="overflow-x-auto max-h-56">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs" aria-label="Supplier Purchase Orders">
                   <thead className="bg-slate-950/60 text-slate-400 font-mono text-[10px]">
                     <tr>
-                      <th className="px-3 py-2">PO ID</th>
-                      <th className="px-3 py-2">Part</th>
-                      <th className="px-3 py-2">Qty</th>
-                      <th className="px-3 py-2">Due Date</th>
-                      <th className="px-3 py-2">Dock Status</th>
+                      <th scope="col" className="px-3 py-2">PO ID</th>
+                      <th scope="col" className="px-3 py-2">Part</th>
+                      <th scope="col" className="px-3 py-2">Qty</th>
+                      <th scope="col" className="px-3 py-2">Due Date</th>
+                      <th scope="col" className="px-3 py-2">Dock Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-800 text-[11px]">
@@ -461,10 +518,11 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
 
             <div className="flex justify-end pt-2">
               <button
+                type="button"
                 onClick={() => setSelectedSupplierId(null)}
-                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium"
+                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
-                Close
+                Close (Esc)
               </button>
             </div>
           </div>
@@ -473,12 +531,17 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
 
       {/* 4. Formula Explanation Modal */}
       {showFormulaModal && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="formula-modal-title"
+          className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        >
           <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-xl">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <FileQuestion className="h-4 w-4 text-blue-400" />
+                <h3 id="formula-modal-title" className="text-base font-bold text-white flex items-center gap-2">
+                  <FileQuestion className="h-4 w-4 text-blue-400" aria-hidden="true" />
                   Supplier Risk Score Mathematical Grounding
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
@@ -486,10 +549,12 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setShowFormulaModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+                aria-label="Close formula explanation modal"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
 
@@ -525,10 +590,11 @@ export const SupplierPerformanceView: React.FC<SupplierPerformanceViewProps> = (
 
             <div className="flex justify-end pt-2">
               <button
+                type="button"
                 onClick={() => setShowFormulaModal(false)}
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
               >
-                Understood
+                Understood (Esc)
               </button>
             </div>
           </div>

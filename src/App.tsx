@@ -1,13 +1,29 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import { Header } from './components/layout/Header'
 import { Navigation, type TabId } from './components/layout/Navigation'
-import { ExecutiveDashboardView } from './components/dashboard/ExecutiveDashboardView'
-import { SupplierPerformanceView } from './components/suppliers/SupplierPerformanceView'
-import { MaterialShortageView } from './components/inventory/MaterialShortageView'
-import { ProductionFeasibilityView } from './components/production/ProductionFeasibilityView'
-import { ScenarioSimulatorView } from './components/simulation/ScenarioSimulatorView'
-import { ExplainableActionsView } from './components/recommendations/ExplainableActionsView'
-import { FoundationVerificationView } from './components/shell/FoundationVerificationView'
+import { ErrorBoundary } from './components/common/ErrorBoundary'
+
+const ExecutiveDashboardView = lazy(() =>
+  import('./components/dashboard/ExecutiveDashboardView').then(m => ({ default: m.ExecutiveDashboardView }))
+)
+const SupplierPerformanceView = lazy(() =>
+  import('./components/suppliers/SupplierPerformanceView').then(m => ({ default: m.SupplierPerformanceView }))
+)
+const MaterialShortageView = lazy(() =>
+  import('./components/inventory/MaterialShortageView').then(m => ({ default: m.MaterialShortageView }))
+)
+const ProductionFeasibilityView = lazy(() =>
+  import('./components/production/ProductionFeasibilityView').then(m => ({ default: m.ProductionFeasibilityView }))
+)
+const ScenarioSimulatorView = lazy(() =>
+  import('./components/simulation/ScenarioSimulatorView').then(m => ({ default: m.ScenarioSimulatorView }))
+)
+const ExplainableActionsView = lazy(() =>
+  import('./components/recommendations/ExplainableActionsView').then(m => ({ default: m.ExplainableActionsView }))
+)
+const FoundationVerificationView = lazy(() =>
+  import('./components/shell/FoundationVerificationView').then(m => ({ default: m.FoundationVerificationView }))
+)
 
 import { getBaselineDataSet, SYSTEM_CUTOFF_DATE } from './data'
 import {
@@ -19,6 +35,21 @@ import {
   generateOperationalRecommendations,
 } from './utils/calculations'
 import { Plane, ExternalLink } from 'lucide-react'
+
+function ModuleLoadingFallback() {
+  return (
+    <div className="space-y-6 animate-pulse py-4" role="status" aria-label="Loading module content">
+      <div className="h-8 bg-slate-800/60 rounded-md w-64" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-28 bg-slate-900/60 border border-slate-800/80 rounded-xl" />
+        ))}
+      </div>
+      <div className="h-96 bg-slate-900/60 border border-slate-800/80 rounded-xl" />
+      <span className="sr-only">Loading aerospace operations data...</span>
+    </div>
+  )
+}
 
 export function App() {
   const [activeTab, setActiveTab] = useState<TabId>('dashboard')
@@ -106,66 +137,70 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        {activeTab === 'dashboard' && (
-          <ExecutiveDashboardView
-            dataSet={dataSet}
-            kpis={kpis}
-            shortages={shortages}
-            atRiskOrders={atRiskOrders}
-            recommendations={recommendations}
-            cutoffDate={cutoffDate}
-            onNavigateTab={setActiveTab}
-          />
-        )}
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12 focus:outline-none">
+        <ErrorBoundary>
+          <Suspense fallback={<ModuleLoadingFallback />}>
+            {activeTab === 'dashboard' && (
+              <ExecutiveDashboardView
+                dataSet={dataSet}
+                kpis={kpis}
+                shortages={shortages}
+                atRiskOrders={atRiskOrders}
+                recommendations={recommendations}
+                cutoffDate={cutoffDate}
+                onNavigateTab={setActiveTab}
+              />
+            )}
 
-        {activeTab === 'suppliers' && (
-          <SupplierPerformanceView
-            suppliers={dataSet.suppliers}
-            assessments={supplierAssessments}
-            purchaseOrders={dataSet.purchaseOrders}
-          />
-        )}
+            {activeTab === 'suppliers' && (
+              <SupplierPerformanceView
+                suppliers={dataSet.suppliers}
+                assessments={supplierAssessments}
+                purchaseOrders={dataSet.purchaseOrders}
+              />
+            )}
 
-        {activeTab === 'shortages' && (
-          <MaterialShortageView
-            components={dataSet.components}
-            shortages={shortages}
-            productionOrders={dataSet.productionOrders}
-            cutoffDate={cutoffDate}
-          />
-        )}
+            {activeTab === 'shortages' && (
+              <MaterialShortageView
+                components={dataSet.components}
+                shortages={shortages}
+                productionOrders={dataSet.productionOrders}
+                cutoffDate={cutoffDate}
+              />
+            )}
 
-        {activeTab === 'production' && (
-          <ProductionFeasibilityView
-            productionOrders={dataSet.productionOrders}
-            atRiskAssessments={atRiskOrders}
-            components={dataSet.components}
-            shortages={shortages}
-            cutoffDate={cutoffDate}
-          />
-        )}
+            {activeTab === 'production' && (
+              <ProductionFeasibilityView
+                productionOrders={dataSet.productionOrders}
+                atRiskAssessments={atRiskOrders}
+                components={dataSet.components}
+                shortages={shortages}
+                cutoffDate={cutoffDate}
+              />
+            )}
 
-        {activeTab === 'simulation' && (
-          <ScenarioSimulatorView
-            baselineDataSet={dataSet}
-            cutoffDate={cutoffDate}
-          />
-        )}
+            {activeTab === 'simulation' && (
+              <ScenarioSimulatorView
+                baselineDataSet={dataSet}
+                cutoffDate={cutoffDate}
+              />
+            )}
 
-        {activeTab === 'recommendations' && (
-          <ExplainableActionsView
-            recommendations={recommendations}
-          />
-        )}
+            {activeTab === 'recommendations' && (
+              <ExplainableActionsView
+                recommendations={recommendations}
+              />
+            )}
 
-        {activeTab === 'foundation' && (
-          <FoundationVerificationView
-            dataSet={dataSet}
-            kpis={kpis}
-            cutoffDate={cutoffDate}
-          />
-        )}
+            {activeTab === 'foundation' && (
+              <FoundationVerificationView
+                dataSet={dataSet}
+                kpis={kpis}
+                cutoffDate={cutoffDate}
+              />
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </main>
 
       {/* Industrial Operations Footer */}

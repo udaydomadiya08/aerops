@@ -33,6 +33,8 @@ export const KPICard: React.FC<KPICardProps> = ({
 
   return (
     <div
+      role="region"
+      aria-label={`${title} Metric Card`}
       className={`relative flex flex-col justify-between rounded-xl bg-slate-900/90 p-5 border ${borderStatusClass} transition-all duration-200 shadow-sm`}
     >
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -40,7 +42,7 @@ export const KPICard: React.FC<KPICardProps> = ({
           {title}
         </span>
         {icon && (
-          <div className="p-2 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60">
+          <div aria-hidden="true" className="p-2 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700/60">
             {icon}
           </div>
         )}

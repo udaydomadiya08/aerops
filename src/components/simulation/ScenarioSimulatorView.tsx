@@ -110,15 +110,17 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
               </Badge>
             )}
             <button
+              type="button"
               onClick={handleReset}
               disabled={!isModified}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              aria-label="Reset simulation parameters to baseline"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none ${
                 isModified
-                  ? 'bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 border border-rose-800'
-                  : 'bg-slate-800/40 text-slate-500 border border-slate-800 cursor-not-allowed'
+                  ? 'bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 border border-rose-800 cursor-pointer'
+                  : 'bg-slate-800/40 text-slate-500 border border-slate-800 cursor-not-allowed opacity-60'
               }`}
             >
-              <RotateCcw className="h-3.5 w-3.5" />
+              <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               <span>Reset to Baseline</span>
             </button>
           </div>
@@ -130,23 +132,29 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           {/* Slider 1: Lead Time Delay */}
           <div className="p-4 rounded-lg bg-slate-950/70 border border-slate-800 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-200">
+              <label htmlFor="lead-time-slider" className="text-xs font-semibold text-slate-200">
                 Supplier Lead-Time Slippage
-              </span>
+              </label>
               <span className="text-xs font-mono font-bold text-blue-400">
                 +{params.leadTimeDelayDays} days
               </span>
             </div>
             <input
+              id="lead-time-slider"
               type="range"
               min="0"
               max="20"
               step="1"
+              aria-label="Supplier Lead-Time Slippage in days"
+              aria-valuemin={0}
+              aria-valuemax={20}
+              aria-valuenow={params.leadTimeDelayDays}
+              aria-valuetext={`+${params.leadTimeDelayDays} days lead time delay`}
               value={params.leadTimeDelayDays}
               onChange={(e) =>
                 setParams({ ...params, leadTimeDelayDays: parseInt(e.target.value, 10) })
               }
-              className="w-full accent-blue-500 cursor-pointer"
+              className="w-full accent-blue-500 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             />
             <p className="text-[10px] text-slate-400">
               Shifts expected dock delivery dates forward for all open POs.
@@ -156,23 +164,29 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           {/* Slider 2: Scrap Surge */}
           <div className="p-4 rounded-lg bg-slate-950/70 border border-slate-800 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-200">
+              <label htmlFor="scrap-surge-slider" className="text-xs font-semibold text-slate-200">
                 Quality / Scrap Surge
-              </span>
+              </label>
               <span className="text-xs font-mono font-bold text-rose-400">
                 +{params.scrapSurgePercentage}%
               </span>
             </div>
             <input
+              id="scrap-surge-slider"
               type="range"
               min="0"
               max="10"
               step="1"
+              aria-label="Quality scrap surge percentage"
+              aria-valuemin={0}
+              aria-valuemax={10}
+              aria-valuenow={params.scrapSurgePercentage}
+              aria-valuetext={`+${params.scrapSurgePercentage}% scrap rate surge`}
               value={params.scrapSurgePercentage}
               onChange={(e) =>
                 setParams({ ...params, scrapSurgePercentage: parseInt(e.target.value, 10) })
               }
-              className="w-full accent-rose-500 cursor-pointer"
+              className="w-full accent-rose-500 cursor-pointer focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
             />
             <p className="text-[10px] text-slate-400">
               Simulates elevated receiving rejections, decreasing usable stock.
@@ -183,17 +197,19 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           <div className="p-4 rounded-lg bg-slate-950/70 border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                  <Plane className="h-3.5 w-3.5 text-blue-400" />
+                <label htmlFor="toggle-expedite-po" className="text-xs font-semibold text-slate-200 flex items-center gap-1.5 cursor-pointer">
+                  <Plane className="h-3.5 w-3.5 text-blue-400" aria-hidden="true" />
                   Expedite Delayed POs
-                </span>
+                </label>
                 <input
+                  id="toggle-expedite-po"
                   type="checkbox"
+                  aria-label="Expedite delayed purchase orders via air freight"
                   checked={params.expediteDelayedPOs}
                   onChange={(e) =>
                     setParams({ ...params, expediteDelayedPOs: e.target.checked })
                   }
-                  className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 cursor-pointer h-4 w-4"
+                  className="rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 cursor-pointer h-4 w-4 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                 />
               </div>
               <p className="text-[10px] text-slate-400">
@@ -213,17 +229,19 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           <div className="p-4 rounded-lg bg-slate-950/70 border border-slate-800 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+                <label htmlFor="toggle-dual-sourcing" className="text-xs font-semibold text-slate-200 flex items-center gap-1.5 cursor-pointer">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />
                   Dual-Sourcing Relief
-                </span>
+                </label>
                 <input
+                  id="toggle-dual-sourcing"
                   type="checkbox"
+                  aria-label="Activate dual-sourcing safety buffer relief"
                   checked={params.alternateSourcingBuffer}
                   onChange={(e) =>
                     setParams({ ...params, alternateSourcingBuffer: e.target.checked })
                   }
-                  className="rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-0 cursor-pointer h-4 w-4"
+                  className="rounded bg-slate-900 border-slate-700 text-emerald-600 focus:ring-0 cursor-pointer h-4 w-4 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:outline-none"
                 />
               </div>
               <p className="text-[10px] text-slate-400">
@@ -251,7 +269,11 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Fleet OTD */}
-          <div className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+          <div
+            role="region"
+            aria-label="Fleet On-Time Delivery Comparative Metric"
+            className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2"
+          >
             <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
               Fleet On-Time Delivery
             </span>
@@ -284,7 +306,11 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           </div>
 
           {/* Active Shortages */}
-          <div className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+          <div
+            role="region"
+            aria-label="Active Component Shortages Comparative Metric"
+            className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2"
+          >
             <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
               Active Shortages
             </span>
@@ -317,7 +343,11 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           </div>
 
           {/* At-Risk Production Orders */}
-          <div className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+          <div
+            role="region"
+            aria-label="At-Risk Assembly Orders Comparative Metric"
+            className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2"
+          >
             <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
               At-Risk Assembly Orders
             </span>
@@ -350,7 +380,11 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
           </div>
 
           {/* Budget Variance */}
-          <div className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+          <div
+            role="region"
+            aria-label="Net Budget Variance Comparative Metric"
+            className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2"
+          >
             <span className="text-xs font-semibold tracking-wider uppercase text-slate-400">
               Net Budget Variance
             </span>
@@ -386,7 +420,7 @@ export const ScenarioSimulatorView: React.FC<ScenarioSimulatorViewProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Layers className="h-4 w-4 text-blue-400" />
+              <Layers className="h-4 w-4 text-blue-400" aria-hidden="true" />
               Simulated Downstream Assembly Impact
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
