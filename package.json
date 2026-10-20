@@ -1,7 +1,25 @@
 {
   "name": "aerrops",
+  "version": "1.0.0",
+  "description": "Aerospace Manufacturing Operations Decision-Support System (AeroOps Control Tower)",
   "private": true,
-  "version": "0.0.0",
+  "license": "MIT",
+  "author": "Uday Domadiya",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/udaydomadiya08/aerops.git"
+  },
+  "homepage": "https://github.com/udaydomadiya08/aerops#readme",
+  "keywords": [
+    "aerospace",
+    "manufacturing-operations",
+    "control-tower",
+    "supply-chain",
+    "mrp",
+    "decision-support",
+    "react19",
+    "typescript"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
